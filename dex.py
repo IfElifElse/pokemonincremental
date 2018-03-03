@@ -1,4 +1,4 @@
-return {
+Pokedex = {
     "bulbasaur" =  {num=  1, to="ivysaur", at=16, egg={"monster", "grass"}},
     "ivysaur" =    {num=  2, to="venusaur", at=32},
     "venusaur" =   {num=  3},

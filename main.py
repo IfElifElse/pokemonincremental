@@ -1,9 +1,9 @@
 from kivy.uix.stacklayout import StackLayout
 
-from colorwidgets import ColorButton, ColorLabel
+import time
 
+from colorwidgets import ColorButton, ColorLabel
 from player import Player
-from game import Game
 
 """
 plant oran berries
@@ -22,12 +22,12 @@ class GameLayout(StackLayout):
         self.player = Player()
         self.berries = {
             "oran": [0, 5],
-            "cheri": [0, 10],
-            "pecha": [0, 10],
-            "chesto": [0, 10],
-            "rawst": [0, 15],
-            "aspear": [0, 15],
-            "persim": [0, 15]
+            "cheri": [0, 20],
+            "pecha": [0, 20],
+            "chesto": [0, 20],
+            "rawst": [0, 80],
+            "aspear": [0, 80],
+            "persim": [0, 80]
         }
         self.displist = []
 
