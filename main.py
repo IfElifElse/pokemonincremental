@@ -1,9 +1,14 @@
+from kivy.app import App
 from kivy.uix.stacklayout import StackLayout
-
-import time
+from kivy.clock import Clock
 
 from colorwidgets import ColorButton, ColorLabel
+from tile import Tile
 from player import Player
+from berry import Berry
+from berrydex import BerryDex
+
+import random
 
 """
 plant oran berries
@@ -17,43 +22,56 @@ combine berries to make poffins
 
 class GameLayout(StackLayout):
     def __init__(self):
-        super(self, GameLayout).__init__()
-
+        super(GameLayout, self).__init__()
         self.player = Player()
-        self.berries = {
-            "oran": [0, 5],
-            "cheri": [0, 20],
-            "pecha": [0, 20],
-            "chesto": [0, 20],
-            "rawst": [0, 80],
-            "aspear": [0, 80],
-            "persim": [0, 80]
-        }
         self.displist = []
-
+        self.soil = []
+        self.selBerry = "persim"
         self.displayMain()
 
-    def addButton(self, text, sizehint, color, binding):
+    def addButton(self, text, sizehint, color, binding, parent=None):
         button = ColorButton(text, sizehint, color)
         button.bind(on_release=binding)
-        self.displist.apppend(button)
-    def addLabel(self, text, sizehint, color):
-        self.displist.append(ColorLabel(text, sizehint, color))
+        if not parent:
+            self.displist.append(button)
+        else:
+            parent.add_widget(button)
+        return button
+    def addLabel(self, text, sizehint, color, parent=None):
+        label = ColorLabel(text, sizehint, color)
+        if not parent:
+            self.displist.append(label)
+        else:
+            parent.add_widget(label)
+        return label
     def dispClear(self):
         self.displist = []
-        self.remove_widgets()
+        self.clear_widgets()
     def dispAll(self):
         for widget in self.displist:
             self.add_widget(widget)
 
     def displayMain(self):
         self.dispClear()
+        black = [0, 0, 0]
+        menuLayout = StackLayout(size_hint=[.1, 1])
+        self.displist.append(menuLayout)
 
-        oranBlue = [102/255, 102/255, 255/255]
-
-        addButton("plant oran", (.5, 1), oranBlue, self.plant("oran"))
-        addLabel()
+        plotLayout = StackLayout(size_hint=[.9, 1])
+        self.displist.append(plotLayout)
+        if not self.soil:
+            for _ in range(25):
+                tile = Tile(self.player)
+                tile.bind(on_release=lambda t: t.plantBerry(self.selBerry))
+                self.soil.append(tile)
+        for tile in self.soil:
+            plotLayout.add_widget(tile)
 
         self.dispAll()
 
-    def plantOran()
+class MyApp(App):
+    def build(self):
+        return GameLayout()
+
+if __name__ == "__main__":
+    MyApp().run()
