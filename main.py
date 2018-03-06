@@ -2,11 +2,8 @@ from kivy.app import App
 from kivy.uix.stacklayout import StackLayout
 from kivy.clock import Clock
 
-from colorwidgets import ColorButton, ColorLabel
-from tile import Tile
-from player import Player
-from berry import Berry
-from berrydex import BerryDex
+from colorwidgets import ColorButton, ColorLabel, TileButton
+from game import Game
 
 import random
 
@@ -23,10 +20,8 @@ combine berries to make poffins
 class GameLayout(StackLayout):
     def __init__(self):
         super(GameLayout, self).__init__()
-        self.player = Player()
+        self.game = Game()
         self.displist = []
-        self.soil = []
-        self.selBerry = "persim"
         self.displayMain()
 
     def addButton(self, text, sizehint, color, binding, parent=None):
@@ -54,18 +49,11 @@ class GameLayout(StackLayout):
     def displayMain(self):
         self.dispClear()
         black = [0, 0, 0]
-        menuLayout = StackLayout(size_hint=[.1, 1])
-        self.displist.append(menuLayout)
 
-        plotLayout = StackLayout(size_hint=[.9, 1])
+        plotLayout = StackLayout(size_hint=[1, 1])
         self.displist.append(plotLayout)
-        if not self.soil:
-            for _ in range(25):
-                tile = Tile(self.player)
-                tile.bind(on_release=lambda t: t.plantBerry(self.selBerry))
-                self.soil.append(tile)
-        for tile in self.soil:
-            plotLayout.add_widget(tile)
+        for tile in self.game.soil:
+            plotLayout.add_widget(TileButton(tile))
 
         self.dispAll()
 

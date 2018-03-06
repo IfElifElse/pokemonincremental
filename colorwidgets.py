@@ -55,3 +55,13 @@ class ColorButton(Button):
         def changeText(text):
             self.text = text
         Clock.schedule_once(lambda _: changeText(oldText), time)
+
+class TileButton(ColorButton):
+    def __init__(self, tile):
+        super(TileButton, self).__init__("plant", (1/5, 1/5), [0, 0, 0])
+        self.tile = tile
+        Clock.schedule_interval(self.update)
+
+    def update(self):
+        displayText = self.tile.phase + "\n" + str(time.now() - self.tile.time)
+        self.text = displayText
