@@ -10,7 +10,7 @@ class Game(object):
         self.soil = [Tile() for _ in range(25)]
         self.selBerry = "cheri"
 
-    def mainLoop(self):
+    def mainLoop(self, _):
         for tile in self.soil:
             tile.update()
 

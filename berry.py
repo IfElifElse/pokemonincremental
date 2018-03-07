@@ -4,7 +4,7 @@ class Berry(object):
     def __init__(self, name):
         info = BerryDex[name]
         self.name = name
-        self.ripeTime = info[0]
+        self.growTime = info[0]
         self.spicy = info[1][0]
         self.dry = info[1][1]
         self.sweet = info[1][2]

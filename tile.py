@@ -7,16 +7,21 @@ class Tile(object):
     def __init__(self):
         self.berry = None
         self.stage = 0
+        self.time = None
 
     def plant(self, berryKind):
-        self.berry = Berry(berryKind)
-        self.stage = 0
-        self.time = time.time()
+        if not self.berry:
+            self.berry = Berry(berryKind)
+            self.stage = 0
+            self.time = time.time()
+        else:
+            self.pick()
 
     def update(self):
-        if self.berry:
+        if self.berry and not self.stage == "ripe":
             timeDiff = time.time() - self.time
-            if timeDiff > (self.berry.growTime) and not self.stage == "ripe":
+            print("berry update for %s, time %s" % (self.berry.name, timeDiff))
+            if (timeDiff > (self.berry.growTime)) and (not self.stage == "ripe"):
                 self.time = time.time()
                 self.stage += 1
             if self.stage >= 4:

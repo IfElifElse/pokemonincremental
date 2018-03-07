@@ -21,6 +21,7 @@ class GameLayout(StackLayout):
     def __init__(self):
         super(GameLayout, self).__init__()
         self.game = Game()
+        Clock.schedule_interval(self.game.mainLoop, 1/60)
         self.displist = []
         self.displayMain()
 
@@ -53,7 +54,9 @@ class GameLayout(StackLayout):
         plotLayout = StackLayout(size_hint=[1, 1])
         self.displist.append(plotLayout)
         for tile in self.game.soil:
-            plotLayout.add_widget(TileButton(tile))
+            tileButton = TileButton(tile)
+            tileButton.bind(on_release=lambda btn: btn.tile.plant(self.game.selBerry))
+            plotLayout.add_widget(tileButton)
 
         self.dispAll()
 
