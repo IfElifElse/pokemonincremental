@@ -1,7 +1,10 @@
 from kivy.lang import Builder
 from kivy.uix.label import Label
 from kivy.uix.button import Button
+from kivy.uix.stacklayout import StackLayout
 from kivy.clock import Clock
+
+from berry import Berry
 
 import time
 
@@ -57,13 +60,54 @@ class ColorButton(Button):
             mutedColor.append(colorValue-(30/255))
         self.rgb = mutedColor+[1]
         super(ColorButton, self).__init__(text=str(text), size_hint=sizehint)
+        self.flashing = False
 
     def flashText(self, text, time=1):
+        self.flashing = True
         oldText = self.text
         self.text = text
         def changeText(text):
             self.text = text
+            self.flashing = False
         Clock.schedule_once(lambda _: changeText(oldText), time)
+
+class MenuBar(StackLayout):
+    def __init__(self, **kwargs):
+        super(MenuBar, self).__init__(**kwargs)
+        self.widgList = []
+        self.index = 0
+
+    def add(self, widget):
+        self.widgList.append(widget)
+
+    def display(self):
+        self.clear_widgets()
+
+        indexes = range(self.index*5, (self.index+1)*5)
+        unbind = False
+        for i in indexes:
+            try:
+                self.add_widget(self.widgList[i])
+            except IndexError:
+                unbind = True
+                break
+
+    def pageChange(self, change):
+        oldIndex = self.index
+        self.index += change
+        if self.index < 0 or (self.index+1)*5 > len(self.widgList)-1:
+            self.index = oldIndex
+        self.display()
+
+class BerryButton(ColorButton):
+    def __init__(self, player, berryName):
+        self.berry = Berry(berryName)
+        self.player = player
+        super(BerryButton, self).__init__(self.berry.name, [1, 1/5], self.berry.hue)
+        Clock.schedule_interval(self.update, 1/60)
+
+    def update(self, _):
+        self.text = self.berry.name + "\n" + str(self.player.berries[self.berry.name])
 
 class TileButton(ColorButton):
     def __init__(self, tile):
@@ -72,12 +116,17 @@ class TileButton(ColorButton):
         Clock.schedule_interval(self.update, 1/60)
 
     def update(self, _):
-        if self.tile.berry and self.tile.time:
+        if self.tile.stage == "ripe":
+            displayText = "4\nclick to harvest"
+        elif self.tile.berry and self.tile.time:
             displayText = str(self.tile.stage) + "\n" + str(truncate(time.time() - self.tile.time, 1))
             self.background_color = self.tile.berry.hue + [1]
-            print("berry has been planted")
-        elif self.tile.stage == "ripe":
-            displayText = "4\nclick to harvest"
         else:
+            self.background_color = [0, 0, 0, 1]
             displayText = "click to plant"
         self.text = displayText
+
+    def plant(self, berryType):
+        success = self.tile.plant(berryType)
+        if not success:
+            self.flashText("fuck, you dont have berries")

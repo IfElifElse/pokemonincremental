@@ -7,15 +7,12 @@ from tile import Tile
 class Game(object):
     def __init__(self):
         self.player = Player()
-        self.soil = [Tile() for _ in range(25)]
+        self.soil = [Tile(self.player) for _ in range(25)]
         self.selBerry = "cheri"
 
     def mainLoop(self, _):
         for tile in self.soil:
             tile.update()
-
-    def plant(self, n, berryType):
-        self.soil[n].plant(berryType)
 
     def pick(self, n):
         berry = self.soil[n].pick()

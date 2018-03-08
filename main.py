@@ -2,7 +2,7 @@ from kivy.app import App
 from kivy.uix.stacklayout import StackLayout
 from kivy.clock import Clock
 
-from colorwidgets import ColorButton, ColorLabel, TileButton
+from colorwidgets import ColorButton, ColorLabel, TileButton, MenuBar, BerryButton
 from game import Game
 
 import random
@@ -51,11 +51,31 @@ class GameLayout(StackLayout):
         self.dispClear()
         black = [0, 0, 0]
 
-        plotLayout = StackLayout(size_hint=[1, 1])
+        menuLayout = StackLayout(size_hint=[.1, 1])
+        self.displist.append(menuLayout)
+
+        upButton = ColorButton("^", [1, .15], [0, 0, 0])
+        menuLayout.add_widget(upButton)
+
+        self.menuBar = MenuBar(size_hint=[1, .7])
+        menuLayout.add_widget(self.menuBar)
+
+        upButton.bind(on_release=lambda _: self.menuBar.pageChange(1))
+
+        for berry in self.game.player.berries:
+            self.menuBar.add(BerryButton(self.game.player, berry))
+        self.menuBar.display()
+
+        downButton = ColorButton("v", [1, .15], [0, 0, 0])
+        downButton.bind(on_release=lambda _: self.menuBar.pageChange(-1))
+        menuLayout.add_widget(downButton)
+
+        plotLayout = StackLayout(size_hint=[.9, 1])
         self.displist.append(plotLayout)
+
         for tile in self.game.soil:
             tileButton = TileButton(tile)
-            tileButton.bind(on_release=lambda btn: btn.tile.plant(self.game.selBerry))
+            tileButton.bind(on_release=lambda btn: btn.plant(self.game.selBerry))
             plotLayout.add_widget(tileButton)
 
         self.dispAll()
