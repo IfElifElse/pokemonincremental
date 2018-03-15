@@ -1,3 +1,5 @@
+import time
+
 from berrydex import BerryDex
 
 class Berry(object):
@@ -12,3 +14,4 @@ class Berry(object):
         self.sour = info[1][4]
         self.type = info[2]
         self.hue = info[3]
+        self.worth = info[4]

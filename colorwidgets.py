@@ -45,20 +45,23 @@ class ColorLabel(Label):
     def __init__(self, text, sizehint, color):
         self.rgb = color
         super(ColorLabel, self).__init__(text=str(text), size_hint=sizehint)
+        self.flashing = False
 
     def flashText(self, text, time=1):
+        self.flashing = True
         oldText = self.text
         self.text = text
         def changeText(text):
             self.text = text
+            self.flashing = False
         Clock.schedule_once(lambda _: changeText(oldText), time)
+
+    def changeText(self, text):
+        self.text = text
 
 class ColorButton(Button):
     def __init__(self, text, sizehint, color):
-        mutedColor = []
-        for colorValue in color:
-            mutedColor.append(colorValue-(30/255))
-        self.rgb = mutedColor+[1]
+        self.rgb = color + [1]
         super(ColorButton, self).__init__(text=str(text), size_hint=sizehint)
         self.flashing = False
 
@@ -70,6 +73,9 @@ class ColorButton(Button):
             self.text = text
             self.flashing = False
         Clock.schedule_once(lambda _: changeText(oldText), time)
+
+    def changeText(self, text):
+        self.text = text
 
 class MenuBar(StackLayout):
     def __init__(self, **kwargs):
@@ -98,35 +104,3 @@ class MenuBar(StackLayout):
         if self.index < 0 or (self.index+1)*5 > len(self.widgList)-1:
             self.index = oldIndex
         self.display()
-
-class BerryButton(ColorButton):
-    def __init__(self, player, berryName):
-        self.berry = Berry(berryName)
-        self.player = player
-        super(BerryButton, self).__init__(self.berry.name, [1, 1/5], self.berry.hue)
-        Clock.schedule_interval(self.update, 1/60)
-
-    def update(self, _):
-        self.text = self.berry.name + "\n" + str(self.player.berries[self.berry.name])
-
-class TileButton(ColorButton):
-    def __init__(self, tile):
-        super(TileButton, self).__init__("plant", (1/5, 1/5), [0, 0, 0])
-        self.tile = tile
-        Clock.schedule_interval(self.update, 1/60)
-
-    def update(self, _):
-        if self.tile.stage == "ripe":
-            displayText = "4\nclick to harvest"
-        elif self.tile.berry and self.tile.time:
-            displayText = str(self.tile.stage) + "\n" + str(truncate(time.time() - self.tile.time, 1))
-            self.background_color = self.tile.berry.hue + [1]
-        else:
-            self.background_color = [0, 0, 0, 1]
-            displayText = "click to plant"
-        self.text = displayText
-
-    def plant(self, berryType):
-        success = self.tile.plant(berryType)
-        if not success:
-            self.flashText("fuck, you dont have berries")

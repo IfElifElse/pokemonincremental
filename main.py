@@ -2,8 +2,9 @@ from kivy.app import App
 from kivy.uix.stacklayout import StackLayout
 from kivy.clock import Clock
 
-from colorwidgets import ColorButton, ColorLabel, TileButton, MenuBar, BerryButton
-from game import Game
+from colorwidgets import *
+from player import Player
+from berry import Berry
 
 import random
 
@@ -17,13 +18,15 @@ fill pokedex
 combine berries to make poffins
 """
 
+def darkened(colorList):
+    return [color-30 if color > 30 else 0 for color in colorList[:3]]
+
 class GameLayout(StackLayout):
     def __init__(self):
         super(GameLayout, self).__init__()
-        self.game = Game()
-        Clock.schedule_interval(self.game.mainLoop, 1/60)
         self.displist = []
-        self.displayMain()
+        self.player = Player()
+        self.displayBerry("cheri")
 
     def addButton(self, text, sizehint, color, binding, parent=None):
         button = ColorButton(text, sizehint, color)
@@ -47,14 +50,16 @@ class GameLayout(StackLayout):
         for widget in self.displist:
             self.add_widget(widget)
 
-    def displayMain(self):
+    def displayBerry(self, berryName):
         self.dispClear()
         black = [0, 0, 0]
+        self.berry = Berry(berryName)
 
         menuLayout = StackLayout(size_hint=[.1, 1])
         self.displist.append(menuLayout)
 
-        upButton = ColorButton("^", [1, .15], [0, 0, 0])
+        #menu configuration
+        upButton = ColorButton("^", [1, .15], black)
         menuLayout.add_widget(upButton)
 
         self.menuBar = MenuBar(size_hint=[1, .7])
@@ -62,21 +67,25 @@ class GameLayout(StackLayout):
 
         upButton.bind(on_release=lambda _: self.menuBar.pageChange(1))
 
-        for berry in self.game.player.berries:
-            self.menuBar.add(BerryButton(self.game.player, berry))
+        for berryName in self.player.berries:
+            tBerry = Berry(berryName) #tberry is target berry
+            berryButton = ColorButton(tBerry.name, [1, 1/5], tBerry.hue)
+            berryButton.bind(on_release=lambda button: self.switchScreen(button.text))
+            self.menuBar.add(berryButton)
+
         self.menuBar.display()
 
-        downButton = ColorButton("v", [1, .15], [0, 0, 0])
+        downButton = ColorButton("v", [1, .15], black)
         downButton.bind(on_release=lambda _: self.menuBar.pageChange(-1))
         menuLayout.add_widget(downButton)
 
-        plotLayout = StackLayout(size_hint=[.9, 1])
-        self.displist.append(plotLayout)
+        berryLayout = StackLayout(size_hint=[.9, 1])
+        self.displist.append(berryLayout)
 
-        for tile in self.game.soil:
-            tileButton = TileButton(tile)
-            tileButton.bind(on_release=lambda btn: btn.plant(self.game.selBerry))
-            plotLayout.add_widget(tileButton)
+        #main configuration
+        self.addButton(self.berry.name, [1, .8], self.berry.hue, lambda _: self.player.grow(self.berry), berryLayout)
+        berryCount = self.addLabel(str(self.player.berries[self.berry.name]), [.2, .2], darkened(self.berry.hue), berryLayout)
+        Clock.schedule_interval(lambda _: berryCount.changeText(str(self.player.berries[self.berry.name])), 1/60)
 
         self.dispAll()
 

@@ -31,7 +31,7 @@ class Tile(object):
                 self.time = time.time()
                 self.stage += 1
             if self.stage >= 4:
-                self.stage = "ripe"
+                self.stage = "ripe" 
 
     def pick(self):
         if self.stage == "ripe":
