@@ -34,14 +34,16 @@ class Player(object):
             self.berries[berry.name].count -= 1
             self.poke += berry.worth
 
-    def buy(self, type, berry):
-        if type == "berry":
+    def buy(self, ree, berry):
+        if ree == "berry":
             if berryName in self.berries:
                 self.berries[berry.name].count += 1
             else:
                 self.berries[berry.name] = 1
-        if type == "seller":
+        if ree == "seller":
+            print("buying seller")
             miniBerry = self.berries[berry.name]
-            if self.poke < int((.5*(miniBerry.sellers)**2)+1): # .5x^2
-                self.berries[berry.name].sellers += 1
+            if self.poke >= int((.5*(miniBerry.sellers)**2)+1): # .5x^2
+                print("bought")
                 self.poke -= int((.5*(miniBerry.sellers)**2)+1)
+                self.berries[berry.name].sellers += 1
