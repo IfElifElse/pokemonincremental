@@ -18,8 +18,8 @@ fill pokedex
 combine berries to make poffins
 """
 
-def darkened(colorList):
-    return [color-30 if color > 30 else 0 for color in colorList[:3]]
+def darkened(colorList, darkened=30):
+    return [color-darkened if color > darkened else 0 for color in colorList[:3]]
 
 class GameLayout(StackLayout):
     def __init__(self):
@@ -53,23 +53,24 @@ class GameLayout(StackLayout):
     def displayBerry(self, berryName):
         self.dispClear()
         black = [0, 0, 0]
+        green = [5/255, 100/255, 5/255]
         self.berry = Berry(berryName)
 
         menuLayout = StackLayout(size_hint=[.1, 1])
         self.displist.append(menuLayout)
 
         #menu configuration
-        upButton = ColorButton("^", [1, .15], black)
-        menuLayout.add_widget(upButton)
+        moneyDisplay = self.addLabel("", [1, .1], green, menuLayout)
 
-        self.menuBar = MenuBar(size_hint=[1, .7])
+        storeButton = self.addButton("Store", [1, .1], black, lambda _: self.switchScreen(button.text), menuLayout)
+
+        self.menuBar = MenuBar(size_hint=[1, .5])
+        upButton = self.addButton("^", [1, .15], black, lambda _: self.menuBar.pageChange(1), menuLayout)
         menuLayout.add_widget(self.menuBar)
-
-        upButton.bind(on_release=lambda _: self.menuBar.pageChange(1))
 
         for berryName in self.player.berries:
             tBerry = Berry(berryName) #tberry is target berry
-            berryButton = ColorButton(tBerry.name, [1, 1/5], tBerry.hue)
+            berryButton = ColorButton(tBerry.name, [1, .2], tBerry.hue)
             berryButton.bind(on_release=lambda button: self.switchScreen(button.text))
             self.menuBar.add(berryButton)
 
@@ -83,11 +84,25 @@ class GameLayout(StackLayout):
         self.displist.append(berryLayout)
 
         #main configuration
-        self.addButton(self.berry.name, [1, .8], self.berry.hue, lambda _: self.player.grow(self.berry), berryLayout)
-        berryCount = self.addLabel(str(self.player.berries[self.berry.name]), [.2, .2], darkened(self.berry.hue), berryLayout)
-        Clock.schedule_interval(lambda _: berryCount.changeText(str(self.player.berries[self.berry.name])), 1/60)
+        berryButton = self.addButton(self.berry.name, [1, .8], self.berry.hue, lambda _: self.player.grow(self.berry), berryLayout)
+        berryCount = self.addLabel("", [.2, .2], darkened(self.berry.hue), berryLayout)
+        sellButton = self.addButton("sell", [.2, .2], darkened(self.berry.hue), lambda _: self.player.sell(self.berry), berryLayout)
+        collectorButton = self.addButton("", [.2, .2], darkened(self.berry.hue), lambda _: self.player.buy("seller", self.berry), berryLayout)
+
+        def mainLoop(_):
+            berryCount.text = str(self.player.berries[self.berry.name].count)
+            moneyDisplay.text = str(self.player.poke)
+            collectorButton.text = "%s sellers\n\n%s" % (self.berry.name, self.player.berries[self.berry.name].sellers)
+            if self.player.growing:
+                print("ree")
+                timeDelta = time.time() - self.player.started
+                berryButton.background_color = darkened(self.berry.hue, timeDelta/2) + [1]
+            else:
+                berryButton.background_color = self.berry.hue + [1]
+        Clock.schedule_interval(mainLoop, 1/60)
 
         self.dispAll()
+
 
 class MyApp(App):
     def build(self):
