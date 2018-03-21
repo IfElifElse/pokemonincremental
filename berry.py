@@ -13,5 +13,6 @@ class Berry(object):
         self.bitter = info[1][3]
         self.sour = info[1][4]
         self.type = info[2]
-        self.hue = info[3]
-        self.worth = info[4]
+        try: self.hue = info[3]
+        except IndexError: self.hue = [0, 0, 0]
+        self.worth = int(self.growTime/2)
