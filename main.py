@@ -19,8 +19,8 @@ fill pokedex
 combine berries to make poffins
 """
 
-def darkened(colorList, darkened=30/255):
-    return [color-darkened if color > darkened else 0 for color in colorList[:3]]
+def darkened(colorList, darkened=30):
+    return [color-(darkened/255) if color > (darkened/255) else 0 for color in colorList[:3]]
 
 class GameLayout(StackLayout):
     def __init__(self):
@@ -74,7 +74,7 @@ class GameLayout(StackLayout):
         for berryName in self.player.berries:
             tBerry = Berry(berryName) #tberry is target berry
             berryBtn = ColorButton(tBerry.name, [1, .2], tBerry.hue)
-            berryBtn.bind(on_release=lambda button: self.switchScreen(button.text))
+            berryBtn.bind(on_release=lambda button: self.displayBerry(button.text))
             self.menuBar.add(berryBtn)
 
         self.menuBar.display()
@@ -112,7 +112,7 @@ class GameLayout(StackLayout):
 
         for berry in storeBerries:
             cost = berry.growTime * 200
-            color = [0, 0, 0]
+            color = darkened(berry.hue, 150)
             func = lambda _: self.player.newBerry(berry) # assigning function newBerry() to func
             if berry.name in self.player.berries: #if the berry is unlocked
                 color = berry.hue

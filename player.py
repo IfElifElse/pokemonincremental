@@ -19,7 +19,7 @@ class BerryRef(object):
 class Player(object):
     def __init__(self):
         self.berries = {"cheri": BerryRef("cheri")}
-        self.poke = 0
+        self.poke = 1200
         self.pokedex = {}
         self.growing = None
 
@@ -56,6 +56,8 @@ class Player(object):
 
 
     def newBerry(self, berry):
+        print("trying to buy %s" % berry.name)
         if self.poke >= berry.growTime * 200:
             self.poke -= berry.growTime * 200
             self.berries[berry.name] = BerryRef(berry.name)
+            print("successfully bought")
